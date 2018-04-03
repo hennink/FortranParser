@@ -102,6 +102,7 @@ MODULE FortranParser
 
       private
 
+      procedure, public :: from_string
       procedure, public :: evaluate
       procedure:: parse
       procedure :: Compile
@@ -114,47 +115,29 @@ MODULE FortranParser
 
   END TYPE EquationParser
 
-  ! Class constructor
-  interface EquationParser
-    procedure constructor
-  end interface EquationParser
-
 CONTAINS
 
 !*****************************************************************************************
-  type (EquationParser) function constructor(FuncStr, Var)
-
+  subroutine from_string(this,FuncStr,Var)
+    class(EquationParser), intent(out) :: this
     CHARACTER (LEN=*),               INTENT(in) :: FuncStr   ! Function string
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
 
-    constructor%ByteCode => null()
-    constructor%Immed => null()
-    constructor%Stack => null()
-
-    constructor%ByteCodeSize = 0
-    constructor%ImmedSize = 0
-    constructor%StackSize = 0
-    constructor%StackPtr = 0
-
-    constructor%funcString = FuncStr
-    constructor%funcStringOrig = FuncStr
-
-    allocate(constructor%variableNames(size(Var)))
-
-    constructor%variableNames(:) = Var(:)
-
-    call constructor%parse()
-
-  end function constructor
+    this%funcString = FuncStr
+    this%funcStringOrig = FuncStr
+    allocate(this%variableNames(size(Var)))
+    this%variableNames(:) = Var(:)
+    call this%parse()
+  end subroutine from_string
 
 !*****************************************************************************************
   subroutine finalize(this)
 
     type(EquationParser) :: this
 
-    if (associated(this%ByteCode))  nullify(this%ByteCode)
-    if (associated(this%Immed))     nullify(this%Immed)
-    if (associated(this%Stack))     nullify(this%Stack)
+    if (associated(this%ByteCode))  deallocate(this%ByteCode)
+    if (associated(this%Immed))     deallocate(this%Immed)
+    if (associated(this%Stack))     deallocate(this%Stack)
 
   end subroutine finalize
 
