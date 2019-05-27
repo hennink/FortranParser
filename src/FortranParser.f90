@@ -83,8 +83,6 @@ MODULE FortranParser
                                                                        'acos ', &
                                                                        'atan ' /)
 
-  INTEGER, parameter  :: MAX_FUN_LENGTH = 1024
-
   TYPE EquationParser
 
     INTEGER(is), POINTER :: ByteCode(:) => null()
@@ -95,9 +93,9 @@ MODULE FortranParser
     INTEGER              :: StackSize = 0
     INTEGER              :: StackPtr = 0
 
-    character(len=MAX_FUN_LENGTH) :: funcString = ''
-    character(len=MAX_FUN_LENGTH) :: funcStringOrig = ''
-    character(len=MAX_FUN_LENGTH), allocatable :: variableNames(:) 
+    character(:), allocatable :: funcString
+    character(:), allocatable :: funcStringOrig
+    character(:), allocatable :: variableNames(:) 
     contains
 
       private
@@ -122,11 +120,10 @@ CONTAINS
     class(EquationParser), intent(out) :: this
     CHARACTER (LEN=*),               INTENT(in) :: FuncStr   ! Function string
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
-
+    
     this%funcString = FuncStr
     this%funcStringOrig = FuncStr
-    allocate(this%variableNames(size(Var)))
-    this%variableNames(:) = Var(:)
+    this%variableNames = Var
     call this%parse()
   end subroutine from_string
 
