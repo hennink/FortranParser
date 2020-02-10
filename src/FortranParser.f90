@@ -86,7 +86,8 @@ MODULE FortranParser
   INTEGER, parameter  :: MAX_FUN_LENGTH = 1024
 
   TYPE EquationParser
-
+    private
+    
     INTEGER(is), ALLOCATABLE :: ByteCode(:)
     INTEGER                  :: ByteCodeSize = 0
     REAL(rn), ALLOCATABLE    :: Immed(:)
@@ -432,9 +433,9 @@ CONTAINS
     IMPLICIT NONE
     CHARACTER (LEN=*),               INTENT(in) :: str       ! String
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
-    INTEGER(is)                                 :: n         ! Index of variable
     INTEGER, OPTIONAL,              INTENT(out) :: ibegin, & ! Start position of variable name
                                                    inext     ! Position of character after name
+    INTEGER(is)                                 :: n         ! Index of variable
     INTEGER                                     :: j,ib,in,lstr
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     n = 0
