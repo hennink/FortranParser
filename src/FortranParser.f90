@@ -87,13 +87,13 @@ MODULE FortranParser
 
   TYPE EquationParser
 
-    INTEGER(is), POINTER :: ByteCode(:) => null()
-    INTEGER              :: ByteCodeSize = 0
-    REAL(rn),    POINTER :: Immed(:) => null()
-    INTEGER              :: ImmedSize = 0
-    REAL(rn),    POINTER :: Stack(:) => null()
-    INTEGER              :: StackSize = 0
-    INTEGER              :: StackPtr = 0
+    INTEGER(is), ALLOCATABLE :: ByteCode(:)
+    INTEGER                  :: ByteCodeSize = 0
+    REAL(rn), ALLOCATABLE    :: Immed(:)
+    INTEGER                  :: ImmedSize = 0
+    REAL(rn), ALLOCATABLE    :: Stack(:)
+    INTEGER                  :: StackSize = 0
+    INTEGER                  :: StackPtr = 0
 
     character(len=MAX_FUN_LENGTH) :: funcString = ''
     character(len=MAX_FUN_LENGTH) :: funcStringOrig = ''
@@ -109,8 +109,6 @@ MODULE FortranParser
       procedure :: CompileSubstr
       procedure :: MathItemIndex
       procedure :: CheckSyntax
-
-      final :: finalize
 
   END TYPE EquationParser
 
@@ -137,17 +135,6 @@ CONTAINS
     call constructor%parse()
 
   end function constructor
-
-!*****************************************************************************************
-  subroutine finalize(this)
-
-    type(EquationParser) :: this
-
-    if (associated(this%ByteCode))  nullify(this%ByteCode)
-    if (associated(this%Immed))     nullify(this%Immed)
-    if (associated(this%Stack))     nullify(this%Stack)
-
-  end subroutine finalize
 
 !*****************************************************************************************
   SUBROUTINE parse(this)
@@ -514,9 +501,9 @@ CONTAINS
     class(EquationParser) :: this
     INTEGER                                     :: istat
 
-    IF (ASSOCIATED(this%ByteCode)) DEALLOCATE ( this%ByteCode, &
-                                                   this%Immed,    &
-                                                   this%Stack     )
+    IF (ALLOCATED(this%ByteCode)) DEALLOCATE ( this%ByteCode, &
+                                               this%Immed,    &
+                                               this%Stack     )
     this%ByteCodeSize = 0
     this%ImmedSize    = 0
     this%StackSize    = 0
@@ -549,7 +536,7 @@ CONTAINS
 
     this%ByteCodeSize = this%ByteCodeSize + 1
 
-    IF (ASSOCIATED(this%ByteCode)) then
+    IF (ALLOCATED(this%ByteCode)) then
       this%ByteCode(this%ByteCodeSize) = b
     endif
 
@@ -567,7 +554,7 @@ CONTAINS
 
     IF (SCAN(this%funcString(b:b),'0123456789.') > 0) THEN                 ! Check for begin of a number
        this%ImmedSize = this%ImmedSize + 1
-       IF (ASSOCIATED(this%Immed)) this%Immed(this%ImmedSize) = RealNum(this%funcString(b:e))
+       IF (ALLOCATED(this%Immed)) this%Immed(this%ImmedSize) = RealNum(this%funcString(b:e))
        n = cImmed
     ELSE                                                     ! Check for a variable
        n = VariableIndex(this%funcString(b:e), this%variableNames)
