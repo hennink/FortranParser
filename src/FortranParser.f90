@@ -83,11 +83,9 @@ MODULE FortranParser
                                                                        'acos ', &
                                                                        'atan ' /)
 
-  INTEGER, parameter  :: MAX_FUN_LENGTH = 1024
-
   TYPE EquationParser
     private
-    
+
     INTEGER(is), ALLOCATABLE :: ByteCode(:)
     INTEGER                  :: ByteCodeSize = 0
     REAL(rn), ALLOCATABLE    :: Immed(:)
@@ -96,9 +94,9 @@ MODULE FortranParser
     INTEGER                  :: StackSize = 0
     INTEGER                  :: StackPtr = 0
 
-    character(len=MAX_FUN_LENGTH) :: funcString = ''
-    character(len=MAX_FUN_LENGTH) :: funcStringOrig = ''
-    character(len=MAX_FUN_LENGTH), allocatable :: variableNames(:) 
+    character(:), allocatable :: funcString
+    character(:), allocatable :: funcStringOrig
+    character(:), allocatable :: variableNames(:) 
     contains
 
       private
@@ -126,12 +124,9 @@ CONTAINS
     CHARACTER (LEN=*),               INTENT(in) :: FuncStr   ! Function string
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
 
-    constructor%funcString = FuncStr
-    constructor%funcStringOrig = FuncStr
-
-    allocate(constructor%variableNames(size(Var)))
-
-    constructor%variableNames = Var
+    allocate(constructor%funcString,source=FuncStr)
+    allocate(constructor%funcStringOrig,source=FuncStr)
+    allocate(constructor%variableNames,source=Var)
 
     call constructor%parse()
 
@@ -483,11 +478,13 @@ CONTAINS
   SUBROUTINE Replace (ca,cb,str)
     ! Replace ALL appearances of character set ca in string str by character set cb
     CHARACTER (LEN=*),       INTENT(in) :: ca
-    CHARACTER (LEN=LEN(ca)), INTENT(in) :: cb                ! LEN(ca) must be LEN(cb)
+    CHARACTER (LEN=*),       INTENT(in) :: cb                ! LEN(ca) must be LEN(cb)
     CHARACTER (LEN=*),    INTENT(inout) :: str
 
     INTEGER                             :: j,lca
-
+    
+    if (len(ca) /= len(cb)) stop 'Replace: len(ca) should equal len(cb)'
+    
     lca = LEN(ca)
 
     DO j=1,LEN_TRIM(str)-lca+1
