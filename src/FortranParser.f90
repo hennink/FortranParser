@@ -139,7 +139,7 @@ CONTAINS
 !*****************************************************************************************
   SUBROUTINE parse(this)
     ! Parse ith function string FuncStr and compile it into bytecode
-    class(EquationParser) :: this
+    class(EquationParser), intent(inout) :: this
 
     CALL Replace('**','^ ', this%funcString)                            ! Exponent into 1-Char. format
 
@@ -154,7 +154,7 @@ CONTAINS
 !*****************************************************************************************
   FUNCTION evaluate(this, Val) RESULT (res)
     ! Evaluate bytecode of ith function for the values passed in array Val(:)
-    class(EquationParser) :: this
+    class(EquationParser), intent(inout) :: this
     REAL(rn), DIMENSION(:), INTENT(in) :: Val                ! Variable values
 
     REAL(rn)                           :: res                ! Result
@@ -272,7 +272,7 @@ CONTAINS
 !*****************************************************************************************
   SUBROUTINE CheckSyntax(this)
     ! Check syntax of function string,  returns 0 if syntax is ok
-    class(EquationParser) :: this
+    class(EquationParser), intent(in) :: this
     INTEGER(is)                                 :: n
     CHARACTER (LEN=1)                           :: c
     REAL(rn)                                    :: r
@@ -498,7 +498,7 @@ CONTAINS
 !*****************************************************************************************
   SUBROUTINE Compile(this)
     ! Compile i-th function string F into bytecode
-    class(EquationParser) :: this
+    class(EquationParser), intent(inout) :: this
     INTEGER                                     :: istat
 
     IF (ALLOCATED(this%ByteCode)) DEALLOCATE ( this%ByteCode, &
@@ -531,7 +531,7 @@ CONTAINS
 !*****************************************************************************************
   SUBROUTINE AddCompiledByte(this, b)
     ! Add compiled byte to bytecode
-    class(EquationParser) :: this
+    class(EquationParser), intent(inout) :: this
     INTEGER(is), INTENT(in) :: b                             ! Value of byte to be added
 
     this%ByteCodeSize = this%ByteCodeSize + 1
@@ -545,7 +545,7 @@ CONTAINS
 !*****************************************************************************************
   FUNCTION MathItemIndex(this, b, e) RESULT (n)
     ! Return math item index, if item is real number, enter it into Comp-structure
-    class(EquationParser) :: this
+    class(EquationParser), intent(inout) :: this
 
     INTEGER,           INTENT(in) :: b,e                     ! First and last pos. of substring
     INTEGER(is)                                 :: n         ! Byte value of math item
@@ -592,7 +592,7 @@ CONTAINS
 !*****************************************************************************************
   RECURSIVE SUBROUTINE CompileSubstr(this, b, e)
     ! Compile i-th function string funcString into bytecode
-    class(EquationParser) :: this
+    class(EquationParser), intent(inout) :: this
     INTEGER,                         INTENT(in) :: b,e       ! Begin and end position substring
 
     INTEGER(is)                                 :: n
